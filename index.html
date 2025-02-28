@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        .calculator-btn:hover {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center p-4">
+    <div class="flex flex-wrap gap-8 w-full max-w-4xl">
+        <!-- Calculator -->
+        <div class="glassmorphism p-6 w-full md:w-[calc(50%-16px)]">
+            <div class="mb-4">
+                <input type="text" id="display" 
+                    class="w-full bg-white/20 text-white text-right text-2xl p-4 rounded-lg" 
+                    readonly>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="clearDisplay()" class="calculator-btn col-span-2 bg-red-400/30">C</button>
+                <button onclick="appendToDisplay('/')" class="calculator-btn bg-white/20">/</button>
+                <button onclick="appendToDisplay('*')" class="calculator-btn bg-white/20">×</button>
+                <button onclick="appendToDisplay('7')" class="calculator-btn">7</button>
+                <button onclick="appendToDisplay('8')" class="calculator-btn">8</button>
+                <button onclick="appendToDisplay('9')" class="calculator-btn">9</button>
+                <button onclick="appendToDisplay('-')" class="calculator-btn bg-white/20">-</button>
+                <button onclick="appendToDisplay('4')" class="calculator-btn">4</button>
+                <button onclick="appendToDisplay('5')" class="calculator-btn">5</button>
+                <button onclick="appendToDisplay('6')" class="calculator-btn">6</button>
+                <button onclick="appendToDisplay('+')" class="calculator-btn bg-white/20">+</button>
+                <button onclick="appendToDisplay('1')" class="calculator-btn">1</button>
+                <button onclick="appendToDisplay('2')" class="calculator-btn">2</button>
+                <button onclick="appendToDisplay('3')" class="calculator-btn">3</button>
+                <button onclick="calculate()" class="calculator-btn row-span-2 bg-blue-400/30">=</button>
+                <button onclick="appendToDisplay('0')" class="calculator-btn col-span-2">0</button>
+                <button onclick="appendToDisplay('.')" class="calculator-btn">.</button>
+            </div>
+        </div>
+
+        <!-- Age Calculator -->
+        <div class="glassmorphism p-6 w-full md:w-[calc(50%-16px)] text-white">
+            <h2 class="text-2xl mb-4 font-bold">Age Calculator</h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <select id="day" class="bg-white/20 text-red-600  p-2 rounded-lg"></select>
+                    <select id="month" class="bg-white/20 p-2 rounded-lg  text-red-600">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                    <select id="year" class="bg-white/20 p-2 rounded-lg  text-red-600"></select>
+                </div>
+                <button onclick="calculateAge()" 
+                    class="w-full calculator-btn bg-green-400/30 p-3 rounded-lg">
+                    Calculate Age
+                </button>
+                <div id="result" class="text-center text-xl space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calculator Logic
+        let display = document.getElementById('display');
+
+        function appendToDisplay(value) {
+            display.value += value;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function calculate() {
+            try {
+                display.value = eval(display.value);
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+
+        // Age Calculator Logic
+        function populateYears() {
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= 1900; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        function populateDays() {
+            const daySelect = document.getElementById('day');
+            daySelect.innerHTML = '';
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+            const days = new Date(year, parseInt(month) + 1, 0).getDate();
+            
+            for (let day = 1; day <= days; day++) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function calculateAge() {
+            const day = document.getElementById('day').value;
+            const month = document.getElementById('month').value;
+            const year = document.getElementById('year').value;
+
+            const birthDate = new Date(year, month, day);
+            const today = new Date();
+
+            let years = today.getFullYear() - birthDate.getFullYear();
+            let months = today.getMonth() - birthDate.getMonth();
+            let days = today.getDate() - birthDate.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <div>Age: ${years} years</div>
+                <div>${months} months</div>
+                <div>${days} days</div>
+            `;
+        }
+
+        // Initialize age calculator
+        populateYears();
+        populateDays();
+        document.getElementById('month').addEventListener('change', populateDays);
+        document.getElementById('year').addEventListener('change', populateDays);
+    </script>
+</body>
+</html>
